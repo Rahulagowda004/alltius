@@ -1,1 +1,8 @@
 setuptools
+langchain-text-splitters
+langchain-community
+langgraph
+langchain_groq
+langchain-core
+langchain-chroma
+bs4
