@@ -178,3 +178,5 @@ cython_debug/
 src/customercare_chatbot.egg-info/*
 
 frontend/*
+
+frontend/package.json
