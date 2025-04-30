@@ -180,3 +180,9 @@ src/customercare_chatbot.egg-info/*
 frontend/*
 
 frontend/package.json
+
+backend/src/RAG/crawled_data/*
+
+backend/src/RAG/rag_data/*
+
+backend/src/RAG/bot.py
