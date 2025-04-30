@@ -177,12 +177,8 @@ cython_debug/
 
 src/customercare_chatbot.egg-info/*
 
-frontend/*
+src/RAG/crawled_data/*
 
-frontend/package.json
+src/RAG/rag_data/*
 
-backend/src/RAG/crawled_data/*
-
-backend/src/RAG/rag_data/*
-
-backend/src/RAG/bot.py
+src/RAG/bot.py
