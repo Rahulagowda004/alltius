@@ -6,6 +6,11 @@ from src.RAG.bot import RAGChatBot
 # Load environment variables
 load_dotenv()
 
+# Load API key from .env file
+api_key = os.getenv("GROQ_API_KEY")
+if api_key:
+    os.environ["GROQ_API_KEY"] = api_key
+
 # Initialize session state for the RAG chatbot
 if "rag_bot" not in st.session_state:
     st.session_state["rag_bot"] = None
@@ -14,33 +19,15 @@ if "rag_bot" not in st.session_state:
 with st.sidebar:
     st.title("Alltius Customer Care")
     
-    groq_api_key = st.text_input("Groq API Key", key="groq_api_key", type="password")
-    if groq_api_key:
-        os.environ["GROQ_API_KEY"] = groq_api_key
-    
-    # Model selection
-    st.subheader("Model Selection")
-    groq_models = [
-        "llama3-70b-8192",
-        "llama3-8b-8192",
-        "mixtral-8x7b-32768",
-        "gemma-7b-it"
-    ]
-    selected_model = st.selectbox(
-        "Select Groq Model",
-        options=groq_models,
-        index=0  # Default to llama3-70b-8192
-    )
-    
     # Initialize/Reset button
     if st.button("Initialize Chatbot"):
         with st.spinner("Initializing RAG chatbot..."):
             try:
                 st.session_state["rag_bot"] = RAGChatBot(
-                    model_name=selected_model,
+                    model_name="llama3-70b-8192",
                     verbose=False
                 )
-                st.success(f"Chatbot initialized with {selected_model}!")
+                st.success("Chatbot initialized with llama3-70b-8192!")
             except Exception as e:
                 st.error(f"Error initializing chatbot: {str(e)}")
     
@@ -54,7 +41,7 @@ with st.sidebar:
 
 # Main chat interface
 st.title("💬 Alltius Customer Care Chatbot")
-st.caption("🚀 Powered by RAG and Groq LLM")
+st.caption("🚀 Powered by RAG and Groq LLM (llama3-70b-8192)")
 
 # Initialize messages in session state if not already there
 if "messages" not in st.session_state:
@@ -68,7 +55,7 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input():
     # Check if chatbot is initialized
     if not st.session_state.get("rag_bot"):
-        st.info("Please initialize the chatbot first by providing your Groq API key and clicking 'Initialize Chatbot'.")
+        st.info("Please initialize the chatbot first by clicking 'Initialize Chatbot'.")
         st.stop()
     
     # Add user message to chat history
