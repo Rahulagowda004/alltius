@@ -2,8 +2,14 @@ setuptools
 langchain-text-splitters
 langchain-community
 langgraph
+langchain_core
 langchain_groq
 langchain-core
 bs4
 requests
 python-dotenv
+tqdm
+numpy
+langchain_huggingface
+faiss_cpu
+pypdf
