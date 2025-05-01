@@ -1,7 +1,15 @@
 import os
+import warnings
 import streamlit as st
 from dotenv import load_dotenv
 from src.RAG.bot import RAGChatBot
+
+# Suppress deprecation warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+# Disable Streamlit file watcher to avoid PyTorch errors
+os.environ["STREAMLIT_SERVER_WATCH_FILE_SYSTEM"] = "false"
 
 # Load environment variables
 load_dotenv()
@@ -13,23 +21,19 @@ if api_key:
 
 # Initialize session state for the RAG chatbot
 if "rag_bot" not in st.session_state:
-    st.session_state["rag_bot"] = None
+    with st.spinner("Initializing RAG chatbot..."):
+        try:
+            st.session_state["rag_bot"] = RAGChatBot(
+                model_name="llama3-70b-8192",
+                verbose=False
+            )
+            st.success("Chatbot initialized with llama3-70b-8192!")
+        except Exception as e:
+            st.error(f"Error initializing chatbot: {str(e)}")
 
 # Sidebar for configuration
 with st.sidebar:
     st.title("Alltius Customer Care")
-    
-    # Initialize/Reset button
-    if st.button("Initialize Chatbot"):
-        with st.spinner("Initializing RAG chatbot..."):
-            try:
-                st.session_state["rag_bot"] = RAGChatBot(
-                    model_name="llama3-70b-8192",
-                    verbose=False
-                )
-                st.success("Chatbot initialized with llama3-70b-8192!")
-            except Exception as e:
-                st.error(f"Error initializing chatbot: {str(e)}")
     
     # Clear chat history button
     if st.button("Clear Chat History"):
@@ -55,7 +59,9 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input():
     # Check if chatbot is initialized
     if not st.session_state.get("rag_bot"):
-        st.info("Please initialize the chatbot first by clicking 'Initialize Chatbot'.")
+        # This should rarely happen since we initialize on startup,
+        # but just in case there was an error during initialization
+        st.error("Chatbot initialization failed. Please refresh the page to try again.")
         st.stop()
     
     # Add user message to chat history
