@@ -14,12 +14,10 @@ from langchain_community.vectorstores import FAISS
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferWindowMemory
 
-# Import only the DocumentEmbedder
 from .embedder import DocumentEmbedder
 
 load_dotenv()
 
-# Fix embedding directory paths
 BASE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 INDEX_DIR = BASE_DIR / "embedded_data"
 FALLBACK_INDEX_DIR = Path(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))) / "old_ones" / "embedded_data"
@@ -33,9 +31,9 @@ class RAGChatBot:
     def __init__(
         self,
         model_name: str = "llama3-70b-8192",
-        temperature: float = 0.5,  # Lower temperature for more focused responses
-        top_k: int = 6,  # Increased from 4 to retrieve more potential context
-        embedding_model_name: str = "sentence-transformers/all-mpnet-base-v2",  # Updated to more powerful model
+        temperature: float = 0.5,
+        top_k: int = 6,
+        embedding_model_name: str = "sentence-transformers/all-mpnet-base-v2",
         verbose: bool = False
     ):
         self.model_name = model_name
@@ -45,12 +43,11 @@ class RAGChatBot:
         
         print(f"Initializing RAG Chatbot with Groq model: {model_name}")
         
-        # Initialize embedder with improved parameters
         self.embedder = DocumentEmbedder(
             embedding_model_name=embedding_model_name,
-            chunk_size=512,  # Smaller chunks for more precise retrieval
-            chunk_overlap=128,  # Adjusted overlap
-            use_gpu=torch.cuda.is_available()  # Auto-use GPU if available
+            chunk_size=512,
+            chunk_overlap=128,
+            use_gpu=torch.cuda.is_available()
         )
         
         self.llm = ChatGroq(
@@ -79,7 +76,6 @@ class RAGChatBot:
                     
                     if os.path.exists(location / "index.faiss") and os.path.exists(location / "index.pkl"):
                         try:
-                            # Use the document embedder to load the index
                             self.vectorstore = FAISS.load_local(
                                 location, 
                                 self.embedder.embeddings,
@@ -102,11 +98,11 @@ class RAGChatBot:
             return
             
         self.retriever = self.vectorstore.as_retriever(
-            search_type="mmr",  # Changed from similarity to Maximum Marginal Relevance for better diversity
+            search_type="mmr",
             search_kwargs={
                 "k": self.top_k,
-                "fetch_k": self.top_k * 2,  # Fetch more candidates for MMR to filter
-                "score_threshold": 0.3  # Lower threshold to include more potentially relevant results
+                "fetch_k": self.top_k * 2,
+                "score_threshold": 0.3
             }
         )
         
@@ -164,7 +160,7 @@ class RAGChatBot:
             sources = []
             for i, doc in enumerate(source_docs):
                 source_info = {
-                    "content": doc.page_content[:200] + "...",  # First 200 chars of content
+                    "content": doc.page_content[:200] + "...",
                     "title": doc.metadata.get("title", "Unknown"),
                     "section": doc.metadata.get("section", ""),
                     "url": doc.metadata.get("url", ""),
@@ -199,18 +195,15 @@ class RAGChatBot:
             return
             
         try:
-            # Process documents with DocumentEmbedder
             path = Path(documents_dir)
             docs = []
             
-            # Process JSON files
             for json_file in path.glob("*.json"):
                 try:
                     docs.extend(self.embedder.process_json_file(str(json_file)))
                 except AttributeError:
                     print(f"Warning: process_json_file method not available. Skipping {json_file}")
             
-            # Process DOCX files
             docx_files = list(path.glob("*.docx"))
             if docx_files:
                 docs.extend(self.embedder.process_docx_files(str(documents_dir)))
@@ -221,7 +214,6 @@ class RAGChatBot:
                 else:
                     self.vectorstore = FAISS.from_documents(docs, self.embedder.embeddings)
                 
-                # Update retriever with new vectorstore
                 self.retriever = self.vectorstore.as_retriever(
                     search_type="similarity",
                     search_kwargs={"k": self.top_k}
