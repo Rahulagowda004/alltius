@@ -13,3 +13,5 @@ numpy
 langchain_huggingface
 faiss_cpu
 pypdf
+exception
+python-docx

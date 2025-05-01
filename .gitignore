@@ -178,3 +178,4 @@ cython_debug/
 src/customercare_chatbot.egg-info/*
 
 src/RAG/artifacts/*
+src/RAG/bot.py
