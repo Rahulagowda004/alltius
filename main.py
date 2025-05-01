@@ -3,6 +3,8 @@ import warnings
 import streamlit as st
 from dotenv import load_dotenv
 from src.RAG.bot import RAGChatBot
+import traceback
+import sys
 
 # Suppress deprecation warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -18,18 +20,31 @@ load_dotenv()
 api_key = os.getenv("GROQ_API_KEY")
 if api_key:
     os.environ["GROQ_API_KEY"] = api_key
+else:
+    st.error("GROQ_API_KEY not found in environment variables. Please check your .env file.")
 
 # Initialize session state for the RAG chatbot
 if "rag_bot" not in st.session_state:
     with st.spinner("Initializing RAG chatbot..."):
         try:
+            # Check if embedded_data directory exists
+            embedded_data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
+                                             "src", "RAG", "embedded_data")
+            if not os.path.exists(embedded_data_path):
+                st.warning(f"Embedded data directory not found at: {embedded_data_path}")
+                
             st.session_state["rag_bot"] = RAGChatBot(
                 model_name="llama3-70b-8192",
-                verbose=False
+                verbose=True  # Enable verbose mode for debugging
             )
             st.success("Chatbot initialized with llama3-70b-8192!")
         except Exception as e:
-            st.error(f"Error initializing chatbot: {str(e)}")
+            error_msg = f"Error initializing chatbot: {str(e)}"
+            st.error(error_msg)
+            # Get detailed traceback information
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            tb_str = ''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))
+            st.code(tb_str, language="python")
 
 # Sidebar for configuration
 with st.sidebar:
