@@ -2,6 +2,14 @@
 
 A Retrieval Augmented Generation (RAG) based customer care chatbot powered by Groq's LLM models. This system provides answers to customer questions by retrieving relevant information from a knowledge base of support documents.
 
+## Screenshots
+
+![Chatbot Homepage](images/homepage.png)
+_Chatbot initialized with llama3-70b-8192 model_
+
+![Chatbot Answering Questions](images/answering.png)
+_Chatbot answering customer queries about UPI handles in IPO applications_
+
 ## Overview
 
 This chatbot uses state-of-the-art language models from Groq combined with a RAG approach to provide accurate and contextual responses to customer inquiries. The system includes:
